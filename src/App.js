@@ -36,8 +36,8 @@ function App() {
     const closeModal = () => setOpen(false);
 
      function addTarefa() { 
-         const name = tarefa;
-         api.post('/tarefa', { name: name }).then((response) => {
+         const disciplina = tarefa;
+         api.post('/tarefa', {disciplina:disciplina }).then((response) => {
             setTarefa('');
             setOpen(false);
             loadData();
@@ -65,7 +65,7 @@ function App() {
                 {lista.map(item => (
                     <TableRow key={item.id}>
                         <TableCell>{item.id}</TableCell>
-                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.disciplina}</TableCell>
                         <TableCell>
                             <input type="checkbox" checked={item.done} onChange={() => markAsDone(item.id)}/>
                         </TableCell>
@@ -84,16 +84,16 @@ function App() {
             </Button>
         </Container>
         <Dialog open={open} onClose={closeModal} fullWidth={true} maxWidth="sm">
-            <DialogTitle id="form-dialog-title">Nova Tarefa</DialogTitle>
+            <DialogTitle id="form-dialog-title">Minhas Tarefas</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Digite a tarefa que pretende realizar.
+                    Digite as tarefas de cada disciplina.
                 </DialogContentText>
                 <TextField
                     autoFocus
                     margin="dense"
-                    id="name"
-                    label="Tarela"
+                    id="Disciplina"
+                    label="Tarefas"
                     type="email"
                     fullWidth
                     value={tarefa}
