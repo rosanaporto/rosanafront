@@ -2,24 +2,28 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import Header from './header';
 import { 
-    Container, 
+     Container, 
     Table, 
     TableRow, 
-    TableCell, 
+    TableHead,
+    TableBody,
+    TableCell,  
     Dialog, 
     Button, 
     DialogTitle, 
-    DialogContent, 
+    DialogContent,
     DialogContentText, 
-    TextField, 
+    TextField,
     DialogActions} from '@material-ui/core';
 import './style.css';
 
 function App() {
 
-    const [ lista, setLista ] = useState([]); // imutabilidade
+    const [ lista, setLista ] = useState([]);
     const [ open, setOpen ] = useState(false);
-    const [ tarefa, setTarefa ] = useState('');
+    const [ disciplina, setDisciplina] = useState('');
+    const [ date, setDate] = useState('');
+    
 
     function loadData() { 
         api.get('/tarefa').then((response) => { 
@@ -35,20 +39,32 @@ function App() {
     // function closeModal() { setOpen(false); }
     const closeModal = () => setOpen(false);
 
-     function addTarefa() { 
-         const disciplina = tarefa;
-         api.post('/tarefa', {disciplina:disciplina }).then((response) => {
-            setTarefa('');
-            setOpen(false);
-            loadData();
+   //Função para adicionar uma nova tarefa
+    function addTarefa() { 
+        const discipline = disciplina;
+        const data = date;
+        api.post('/tarefa', { disciplina: discipline, date:data}).then((response) => {
+        setDisciplina('');
+        setDate('');
+        setOpen(false);
+        loadData()
         })
      }
+     
+     //Função para marcar uma Tarefa como 'Não Entregue'
+    function markAsEntregue(id, entregue) {
+        if(entregue === true){
+            api.patch(`/tarefa/${id}/naoentregue`).then((response) => {
+                loadData()
+            });
+        } else {
+                api.patch(`/tarefa/${id}/entregue`).then((response) => {
+                loadData()
+            });
+        }
+    }
 
-     function markAsDone(id) { 
-         api.patch(`/tarefa/${id}/done`).then((response) => {
-             loadData()
-         })
-     }
+      //Função para excluir uma Tarefa da lista.
 
      function deleteTarefa(id) {
          api.delete(`/tarefa/${id}`).then((response) => { 
@@ -57,23 +73,37 @@ function App() {
      }
     
 
-    return (
+      return (
         <>
         <Header />
-        <Container maxWidth="lg" className="container"> 
+        <Container maxWidth="lg" className="container">
             <Table>
-                {lista.map(item => (
-                    <TableRow key={item.id}>
-                        <TableCell>{item.id}</TableCell>
-                        <TableCell>{item.disciplina}</TableCell>
-                        <TableCell>
-                            <input type="checkbox" checked={item.done} onChange={() => markAsDone(item.id)}/>
-                        </TableCell>
-                        <TableCell>
-                            <Button variant="outlined" size="small" color="secondary" onClick={() => deleteTarefa(item.id)}>Apagar</Button>
-                        </TableCell>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell>Disciplina</TableCell>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Entregue?</TableCell>
+                        <TableCell>Apagar</TableCell>
                     </TableRow>
-                ))}
+                </TableHead>
+                <TableBody>
+                    {lista.map(item => (
+                        <TableRow key={item.id}>
+                            <TableCell>{item.id}</TableCell>
+                            <TableCell>{item.disciplina}</TableCell>
+                            <TableCell>{item.date}</TableCell>
+                            <TableCell>
+                                <input type="checkbox" 
+                                onChange={() => markAsEntregue(item.id, item.entregue)}                   
+                                checked={item.entregue === true ? true : false}/>
+                            </TableCell>
+                            <TableCell>
+                                <Button variant="outlined" size="small" color="secondary" onClick={() => deleteTarefa(item.id)} >Apagar</Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
             </Table>
             <Button 
                 onClick={openModal}
@@ -94,11 +124,22 @@ function App() {
                     margin="dense"
                     id="Disciplina"
                     label="Tarefas"
-                    type="email"
+                    type="text"
                     fullWidth
-                    value={tarefa}
-                    onChange={e => setTarefa(e.target.value)}
+                    value={disciplina}
+                    onChange={e => setDisciplina(e.target.value)}
                 />
+                
+                    <TextField
+                        margin="dense"
+                        id="date"
+                        label="Date"
+                        type="date"
+                        fullWidth
+                        value={date}
+                        onChange={e => setDate(e.target.value)}
+                    />
+                   
             </DialogContent>
             <DialogActions>
                 <Button onClick={closeModal} color="primary">
