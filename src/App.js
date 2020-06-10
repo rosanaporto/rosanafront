@@ -43,7 +43,7 @@ function App() {
     function addTarefa() { 
         const discipline = disciplina;
         const data = date;
-        api.post('/tarefa', { disciplina: discipline, date:data}).then((response) => {
+        api.post('/tarefa', { disciplina: discipline, date:data, entregue: true}).then((response) => {
         setDisciplina('');
         setDate('');
         setOpen(false);
